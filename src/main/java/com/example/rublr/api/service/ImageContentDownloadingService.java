@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -32,12 +33,17 @@ public class ImageContentDownloadingService implements ContentDownloadingService
 
   @Override
   public long download(String blogName, int minLikes, int minWidth) {
+	  imageStore.init(blogName, defaultImagesFolderName);
     val blogPosts = getBlogPosts(blogName);
-    val alreadyDownloaded = getAlreadyDownloadedFileNames(blogName);
-    val imagesToDownload = toFilteredImageUrlCollection(blogPosts, minLikes, minWidth);
-    val fileNameToUrl = buildPendingImagesMap(imagesToDownload);
-    val filteredFileNamesMap = filterAlreadyDownloaded(fileNameToUrl, alreadyDownloaded);
-    return downloadImages(filteredFileNamesMap, blogName);
+    return Optional.of(blogPosts)
+		.map(posts -> toFilteredImageUrlCollection(posts, minLikes, minWidth))
+		.map(this::buildPendingImagesMap)
+		.map(fileNameToUrl -> {
+			val alreadyDownloaded = getAlreadyDownloadedFileNames(blogName);
+			return filterAlreadyDownloaded(fileNameToUrl, alreadyDownloaded);	
+		})
+		.map(filteredFileNamesMap -> downloadImages(filteredFileNamesMap, blogName))
+		.get();
   }
 
   private int downloadImages(Map<String, String> filteredFileNamesMap, String blogName) {

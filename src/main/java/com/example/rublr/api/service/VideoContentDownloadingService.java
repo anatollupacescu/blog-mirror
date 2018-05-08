@@ -11,6 +11,8 @@ import com.example.rublr.domain.BlogPost;
 import com.example.rublr.domain.Video;
 import com.google.common.collect.Sets;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
@@ -29,13 +31,16 @@ public class VideoContentDownloadingService implements ContentDownloadingService
   @Override
   public long download(String blogName, int minLikes, int minWidth) {
     initFolders(blogName);
-    val blogPostStream = getFilteredRecordsStream(blogName, minLikes);
-    val videoPostsStream = getFilteredVideosStream(blogPostStream, minWidth);
-    val videoUrlStream = toUrlStream(videoPostsStream);
-    val downloadedVideos = getDownloadedImagesFileNameList(blogName);
-    val fileNameToUrlMap = buildFileNameToUrlMap(videoUrlStream);
-    val filteredFileNameToUrlMap = filterAlreadyDownloaded(fileNameToUrlMap, downloadedVideos);
-    return downloadVideos(filteredFileNameToUrlMap, blogName);
+    return Optional.of(getFilteredRecordsStream(blogName, minLikes))
+        .map(blogPostStream -> toFilteredVideosStream(blogPostStream, minWidth))
+        .map(this::toUrlStream)
+        .map(this::buildFileNameToUrlMap)
+        .map(fileNameToUrlMap -> {
+          val downloadedVideos = getDownloadedImagesFileNameList(blogName);
+          return filterAlreadyDownloaded(fileNameToUrlMap, downloadedVideos);
+        })
+        .map(filteredFileNameToUrlMap -> downloadVideos(filteredFileNameToUrlMap, blogName))
+        .get();
   }
 
   private void initFolders(String blogName) {
@@ -73,7 +78,19 @@ public class VideoContentDownloadingService implements ContentDownloadingService
   }
 
   private Map<String, String> buildFileNameToUrlMap(Stream<String> videoUrlStream) {
-    return videoUrlStream.collect(toMap(this::toFileName, identity(), (n, o) -> n));
+    return videoUrlStream
+        .filter(Objects::nonNull)
+        .filter(url -> url.contains("/tumblr_"))
+        .collect(toMap(this::toFileName, identity(), (n, o) -> n));
+  }
+
+  private String toFileName(String url) {
+    int start = url.lastIndexOf("/tumblr_") + 1;
+    int end = url.lastIndexOf("/");
+    if (end <= start) {
+      end = url.length();
+    }
+    return url.substring(start, end);
   }
 
   private Stream<String> toUrlStream(Stream<Video> videoPostsStream) {
@@ -84,9 +101,9 @@ public class VideoContentDownloadingService implements ContentDownloadingService
     return Sets.newHashSet(localFileStore.listFileNames(blogName, defaultVideosFolderName));
   }
 
-  private Stream<Video> getFilteredVideosStream(Stream<BlogPost> blogPostStream, int minWidth) {
+  private Stream<Video> toFilteredVideosStream(Stream<BlogPost> blogPostStream, int minWidth) {
     val videoPostsStream = blogPostStream
-        .filter(post -> post.getVideos() != null)
+        .filter(post -> post.getVideos() != null && !post.getVideos().isEmpty())
         .flatMap(post -> post.getVideos().stream());
     if (minWidth > 0) {
       return videoPostsStream.filter(video -> video.getWidth() >= minWidth);
@@ -95,26 +112,16 @@ public class VideoContentDownloadingService implements ContentDownloadingService
   }
 
   private Stream<BlogPost> getFilteredRecordsStream(String blogName, int minLikes) {
-    val blogPostStream = recordStore.readRecords(blogName).stream();
+    val blogPostStream = getVideoBlogPosts(blogName);
     if (minLikes > 0) {
       return blogPostStream.filter(post -> post.getNoteCount() >= minLikes);
     }
     return blogPostStream;
   }
 
-  private String toFileName(String url) {
-    if (url == null) {
-      return null;
-    }
-    if (url.contains("/tumblr_")) {
-      int start = url.lastIndexOf("/tumblr_") + 1;
-      int end = url.lastIndexOf("/");
-      if (end <= start) {
-        end = url.length();
-      }
-      return url.substring(start, end);
-    }
-    return null;
+  private Stream<BlogPost> getVideoBlogPosts(String blogName) {
+    return recordStore.readRecords(blogName).stream()
+        .filter(post -> "video".equals(post.getType()));
   }
 
   private String toUrl(String s) {

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
+import lombok.val;
 
 @AllArgsConstructor
 public class TumblrBlogPostFetcher implements BlogPostFetcher {
@@ -30,7 +31,8 @@ public class TumblrBlogPostFetcher implements BlogPostFetcher {
   @Override
   public List<BlogPost> fetchPosts(String name, int offset, int step) {
     Objects.requireNonNull(name);
-    return client.blogPosts(name, requestMap(offset, step)).stream()
+    val options = requestMap(offset, step);
+    return client.blogPosts(name, options).stream()
         .map(BlogPost::new)
         .collect(toList());
   }
