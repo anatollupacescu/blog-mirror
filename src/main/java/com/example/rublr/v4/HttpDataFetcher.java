@@ -11,8 +11,6 @@ import lombok.val;
 @Slf4j
 public class HttpDataFetcher implements DataFetcher {
 
-  private final int BUFFER_SIZE = 4096;
-
   @Override
   public byte[] fetch(String fileURL) {
     HttpURLConnection httpConn = null;
@@ -24,7 +22,7 @@ public class HttpDataFetcher implements DataFetcher {
         try (val inputStream = httpConn.getInputStream();
             val outputStream = new ByteArrayOutputStream()) {
           int bytesRead;
-          val buffer = new byte[BUFFER_SIZE];
+          val buffer = new byte[4096];
           while ((bytesRead = inputStream.read(buffer)) != -1) {
             outputStream.write(buffer, 0, bytesRead);
           }
@@ -41,6 +39,6 @@ public class HttpDataFetcher implements DataFetcher {
         httpConn.disconnect();
       }
     }
-    return null;
+    return new byte[] {};
   }
 }

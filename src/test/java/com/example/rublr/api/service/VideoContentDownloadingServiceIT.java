@@ -8,7 +8,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {TestConfig.class})
-public class ContentSynchroniserIT extends SimpleSpringScenarioTest<ContentSynchronizerStage> {
+public class VideoContentDownloadingServiceIT extends
+    SimpleSpringScenarioTest<VideoContentDownloadingServiceStage> {
 
   @Test
   public void thereAreNoLocalFilesAllContentIsDownloaded() {

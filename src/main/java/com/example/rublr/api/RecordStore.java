@@ -8,7 +8,7 @@ public interface RecordStore {
 
   List<BlogPost> readRecords(String name);
 
-  int updateRecords(String name, List<BlogPost> delta);
+  long updateRecords(String name, List<BlogPost> delta);
 
   List<Blog> listBlogs();
 }

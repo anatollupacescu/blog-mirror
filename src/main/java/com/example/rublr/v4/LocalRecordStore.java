@@ -64,7 +64,7 @@ public class LocalRecordStore implements RecordStore {
   }
 
   @Override
-  public int updateRecords(String name, List<BlogPost> delta) {
+  public long updateRecords(String name, List<BlogPost> delta) {
     val actualRecords = readRecords(name);
     val newList = ImmutableList.<BlogPost>builder();
     newList.addAll(actualRecords);

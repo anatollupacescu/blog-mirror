@@ -18,19 +18,20 @@ public class BlogPostSynchronizingService {
 
   final int stepSize;
 
-  public BlogPostSynchronizingService(RecordStore recordStore, BlogPostFetcher client, int stepSize) {
+  public BlogPostSynchronizingService(RecordStore recordStore, BlogPostFetcher client,
+      int stepSize) {
     this.recordStore = recordStore;
     this.client = client;
     this.stepSize = stepSize;
   }
 
-  public int syncBlog(String name) {
+  public long syncBlog(String name) {
     Assert.notNull(name, "Blog name expected");
     val localRecords = recordStore.readRecords(name);
     val currentRecordCount = localRecords.size();
     val availableRecordCount = client.availablePostCount(name);
     log.info("Will download {} records...", availableRecordCount - currentRecordCount);
-    int updated = 0;
+    long updated = 0;
     if (currentRecordCount < availableRecordCount) {
       val remoteRecords = fetchPosts(name, currentRecordCount, availableRecordCount);
       log.info("Saving {} new records...", remoteRecords.size());

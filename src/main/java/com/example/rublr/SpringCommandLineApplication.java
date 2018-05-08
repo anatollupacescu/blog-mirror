@@ -15,7 +15,6 @@ import com.example.rublr.v4.TumblrBlogPostFetcher;
 import com.tumblr.jumblr.JumblrClient;
 import java.util.List;
 import java.util.concurrent.Executors;
-import lombok.val;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,7 +119,7 @@ public class SpringCommandLineApplication {
 
     @ShellMethod("Fetches records for a given blog")
     public String syncBlog(@ShellOption String blogName) {
-      val count = service.syncBlog(blogName);
+      long count = service.syncBlog(blogName);
       return String.format("Done fetching %d record(s)", count);
     }
 
@@ -128,7 +127,7 @@ public class SpringCommandLineApplication {
     public String fetchImages(@ShellOption String blogName,
         @ShellOption(defaultValue = "0") int minLikes,
         @ShellOption(defaultValue = "0") int minWidth) {
-      val count = imageDownloadingService.download(blogName, minLikes, minWidth);
+      long count = imageDownloadingService.download(blogName, minLikes, minWidth);
       return String.format("Done fetching %d image(s)", count);
     }
 
@@ -136,7 +135,7 @@ public class SpringCommandLineApplication {
     public String fetchVideos(@ShellOption String blogName,
         @ShellOption(defaultValue = "0") int minLikes,
         @ShellOption(defaultValue = "0") int minWidth) {
-      val count = videoDownloadingService.download(blogName, minLikes, minWidth);
+      long count = videoDownloadingService.download(blogName, minLikes, minWidth);
       return String.format("Done fetching %d video(s)", count);
     }
   }

@@ -38,9 +38,9 @@ public class BlogPost {
     } else if (post instanceof VideoPost) {
       this.videos = mapVideos(((VideoPost) post).getVideos());
     }
-    List<Note> notes = post.getNotes();
-    if (notes != null && !notes.isEmpty()) {
-      this.notes.addAll(notes.stream().map(Note::getBlogName).collect(Collectors.toSet()));
+    List<Note> postNotes = post.getNotes();
+    if (postNotes != null && !postNotes.isEmpty()) {
+      this.notes.addAll(postNotes.stream().map(Note::getBlogName).collect(Collectors.toSet()));
     }
   }
 

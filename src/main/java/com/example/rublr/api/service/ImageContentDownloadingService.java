@@ -33,17 +33,17 @@ public class ImageContentDownloadingService implements ContentDownloadingService
 
   @Override
   public long download(String blogName, int minLikes, int minWidth) {
-	  imageStore.init(blogName, defaultImagesFolderName);
+    imageStore.init(blogName, defaultImagesFolderName);
     val blogPosts = getBlogPosts(blogName);
     return Optional.of(blogPosts)
-		.map(posts -> toFilteredImageUrlCollection(posts, minLikes, minWidth))
-		.map(this::buildPendingImagesMap)
-		.map(fileNameToUrl -> {
-			val alreadyDownloaded = getAlreadyDownloadedFileNames(blogName);
-			return filterAlreadyDownloaded(fileNameToUrl, alreadyDownloaded);	
-		})
-		.map(filteredFileNamesMap -> downloadImages(filteredFileNamesMap, blogName))
-		.get();
+        .map(posts -> toFilteredImageUrlCollection(posts, minLikes, minWidth))
+        .map(this::buildPendingImagesMap)
+        .map(fileNameToUrl -> {
+          val alreadyDownloaded = getAlreadyDownloadedFileNames(blogName);
+          return filterAlreadyDownloaded(fileNameToUrl, alreadyDownloaded);
+        })
+        .map(filteredFileNamesMap -> downloadImages(filteredFileNamesMap, blogName))
+        .get();
   }
 
   private int downloadImages(Map<String, String> filteredFileNamesMap, String blogName) {
@@ -72,7 +72,7 @@ public class ImageContentDownloadingService implements ContentDownloadingService
       val remaining = latch.getCount();
       latch.await(remaining, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
-      throw new RuntimeException(e);
+      Thread.currentThread().interrupt();
     }
   }
 
@@ -113,7 +113,7 @@ public class ImageContentDownloadingService implements ContentDownloadingService
   }
 
   private String filenameOnly(String url) {
-    int start = url.lastIndexOf("/") + 1;
+    int start = url.lastIndexOf('/') + 1;
     return url.substring(start);
   }
 }

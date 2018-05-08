@@ -86,7 +86,7 @@ public class VideoContentDownloadingService implements ContentDownloadingService
 
   private String toFileName(String url) {
     int start = url.lastIndexOf("/tumblr_") + 1;
-    int end = url.lastIndexOf("/");
+    int end = url.lastIndexOf('/');
     if (end <= start) {
       end = url.length();
     }

@@ -30,7 +30,7 @@ public class BlogPostSynchronizerStage extends Stage<BlogPostSynchronizerStage> 
 
   private BlogPostSynchronizingService service;
   private String blogName;
-  private int deltaCount;
+  private long deltaCount;
 
   @BeforeStage
   public void setUp() {

@@ -28,7 +28,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @JGivenStage
-public class ContentSynchronizerStage extends Stage<ContentSynchronizerStage> {
+public class VideoContentDownloadingServiceStage extends Stage<VideoContentDownloadingServiceStage> {
 
   @Autowired
   RecordStore recordStore;
@@ -49,26 +49,27 @@ public class ContentSynchronizerStage extends Stage<ContentSynchronizerStage> {
         dataFetcher, defaultVideoFolderName);
   }
 
-  public ContentSynchronizerStage we_have_a_blog_$(@Quoted String givenBlogName) {
+  public VideoContentDownloadingServiceStage we_have_a_blog_$(@Quoted String givenBlogName) {
     this.blogName = givenBlogName;
     return self();
   }
 
-  public ContentSynchronizerStage it_has_$_downloaded_videos(int count) {
+  public VideoContentDownloadingServiceStage it_has_$_downloaded_videos(int count) {
     for (int i = 1; i <= count; i++) {
       videoStore.saveFile(blogName, defaultVideoFolderName, "tumblr_video" + i, new byte[]{0});
     }
     return self();
   }
 
-  public ContentSynchronizerStage the_local_content_folder_has_$_videos(int i) {
+  public VideoContentDownloadingServiceStage the_local_content_folder_has_$_videos(int i) {
     Collection<String> localFiles = videoStore.listFileNames(blogName, defaultVideoFolderName);
     assertThat(localFiles, is(notNullValue()));
     assertThat(localFiles.size(), is(equalTo(i)));
     return self();
   }
 
-  public ContentSynchronizerStage the_remote_resource_has_$_videos(int remoteVideosCount) {
+  public VideoContentDownloadingServiceStage the_remote_resource_has_$_videos(
+      int remoteVideosCount) {
     recordStore.updateRecords(blogName, testData(2));
     Collection<BlogPost> blogPosts = recordStore.readRecords(blogName);
     assertThat(blogPosts, is(notNullValue()));
@@ -76,18 +77,18 @@ public class ContentSynchronizerStage extends Stage<ContentSynchronizerStage> {
     return self();
   }
 
-  public ContentSynchronizerStage the_blog_is_synced() {
+  public VideoContentDownloadingServiceStage the_blog_is_synced() {
     Mockito.when(dataFetcher.fetch(anyString())).thenReturn(new byte[]{0});
     videoDownloadingService.download(blogName, 0, 0);
     return self();
   }
 
-  public ContentSynchronizerStage a_total_of_$_fetches_occured(int i) {
+  public VideoContentDownloadingServiceStage a_total_of_$_fetches_occured(int i) {
     verify(dataFetcher, times(i)).fetch(anyString());
     return self();
   }
 
-  public ContentSynchronizerStage it_has_an_empty_content_folder() {
+  public VideoContentDownloadingServiceStage it_has_an_empty_content_folder() {
     return it_has_$_downloaded_videos(0);
   }
 

@@ -17,10 +17,11 @@ import org.apache.logging.log4j.util.Strings;
 @Slf4j
 public class LocalFileStore implements FileStore {
 
+  private final String slash = "/";
   private final String rootFolder;
 
   public LocalFileStore(String s) {
-    this.rootFolder = s.endsWith("/") ? s : s + "/";
+    this.rootFolder = s.endsWith(slash) ? s : s + slash;
   }
 
   @Override
@@ -59,15 +60,18 @@ public class LocalFileStore implements FileStore {
 
   @Override
   public boolean saveFile(String blogName, String folder, String fileName, byte[] data) {
-    val destination = getFilePath(blogName, folder, fileName);
-    val file = new File(destination);
-    try (OutputStream out = new FileOutputStream(file)) {
-      out.write(data);
-      out.close();
-      return true;
-    } catch (IOException e) {
-      log.error("Could not save file {} to location {} because: ", fileName, folder,
-          e.getMessage());
+    if (data.length == 0) {
+      log.warn("Empty body, will not save");
+    } else {
+      val destination = getFilePath(blogName, folder, fileName);
+      val file = new File(destination);
+      try (OutputStream out = new FileOutputStream(file)) {
+        out.write(data);
+        return true;
+      } catch (IOException e) {
+        log.error("Could not save file {} to location {} because: ", fileName, folder,
+            e.getMessage());
+      }
     }
     return false;
   }
