@@ -20,7 +20,7 @@ public class InMemoryFileStore implements FileStore {
   }
 
   @Override
-  public boolean init(String blog, String images) {
+  public boolean initializeStore(String blog, String images) {
     return true;
   }
 }

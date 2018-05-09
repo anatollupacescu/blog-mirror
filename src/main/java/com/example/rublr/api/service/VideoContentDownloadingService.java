@@ -19,8 +19,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
-@AllArgsConstructor
 @Slf4j
+@AllArgsConstructor
 public class VideoContentDownloadingService implements ContentDownloadingService {
 
   private RecordStore recordStore;
@@ -44,7 +44,7 @@ public class VideoContentDownloadingService implements ContentDownloadingService
   }
 
   private void initFolders(String blogName) {
-    localFileStore.init(blogName, defaultVideosFolderName);
+    localFileStore.initializeStore(blogName, defaultVideosFolderName);
   }
 
   private long downloadVideos(Map<String, String> filteredFileNameToUrlMap, String blogName) {

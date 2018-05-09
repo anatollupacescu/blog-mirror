@@ -18,8 +18,8 @@ import org.junit.Test;
 
 public class LocalFileStoreTest {
 
-  final String root = "target";
-  final List<Path> paths = Lists.newArrayList();
+  private final String root = "target";
+  private final List<Path> cleanup = Lists.newArrayList();
 
   private LocalFileStore store;
 
@@ -30,7 +30,7 @@ public class LocalFileStoreTest {
 
   @After
   public void tearDown() {
-    paths.forEach(p -> {
+    cleanup.forEach(p -> {
       try {
         Files.deleteIfExists(p);
       } catch (IOException e) {
@@ -48,14 +48,14 @@ public class LocalFileStoreTest {
   public void whenCreatedIsEmpty() {
     val blogName = "blog";
     String images = "images";
-    val initialized = store.init(blogName, images);
+    val initialized = store.initializeStore(blogName, images);
     assertThat(initialized, is(equalTo(true)));
     val files = store.listFileNames("blog", images);
     assertThat(files, is(notNullValue()));
     assertThat(files.isEmpty(), is(equalTo(true)));
     //cleanup
-    paths.add(Paths.get(root, blogName, images));
-    paths.add(Paths.get(root, blogName));
+    cleanup.add(Paths.get(root, blogName, images));
+    cleanup.add(Paths.get(root, blogName));
   }
 
   @Test
@@ -63,15 +63,15 @@ public class LocalFileStoreTest {
     val blogName = "blog2";
     val images = "images";
     val file = "file";
-    store.init(blogName, images);
+    store.initializeStore(blogName, images);
     val saved = store.saveFile(blogName, images, file, new byte[]{1});
     assertThat(saved, is(equalTo(true)));
     val files = store.listFileNames(blogName, images);
     assertThat(files, is(notNullValue()));
     assertThat(files.isEmpty(), is(equalTo(false)));
     //cleanup
-    paths.add(Paths.get(root, blogName, images, file));
-    paths.add(Paths.get(root, blogName, images));
-    paths.add(Paths.get(root, blogName));
+    cleanup.add(Paths.get(root, blogName, images, file));
+    cleanup.add(Paths.get(root, blogName, images));
+    cleanup.add(Paths.get(root, blogName));
   }
 }

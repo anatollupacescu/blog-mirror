@@ -6,24 +6,18 @@ import com.example.rublr.domain.BlogPost;
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.util.Assert;
 
 @Slf4j
+@AllArgsConstructor
 public class BlogPostSynchronizingService {
 
-  final RecordStore recordStore;
-  final BlogPostFetcher client;
-
-  final int stepSize;
-
-  public BlogPostSynchronizingService(RecordStore recordStore, BlogPostFetcher client,
-      int stepSize) {
-    this.recordStore = recordStore;
-    this.client = client;
-    this.stepSize = stepSize;
-  }
+  private RecordStore recordStore;
+  private BlogPostFetcher client;
+  private int stepSize;
 
   public long syncBlog(String name) {
     Assert.notNull(name, "Blog name expected");
@@ -42,7 +36,7 @@ public class BlogPostSynchronizingService {
     return updated;
   }
 
-  public List<BlogPost> fetchPosts(String name, int downloaded, int size) {
+  private List<BlogPost> fetchPosts(String name, int downloaded, int size) {
     int step = stepSize;
     val result = ImmutableList.<BlogPost>builder();
     for (int i = size - downloaded; i > 0; i -= 20) {

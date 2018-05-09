@@ -33,7 +33,7 @@ public class ImageContentDownloadingService implements ContentDownloadingService
 
   @Override
   public long download(String blogName, int minLikes, int minWidth) {
-    imageStore.init(blogName, defaultImagesFolderName);
+    imageStore.initializeStore(blogName, defaultImagesFolderName);
     val blogPosts = getBlogPosts(blogName);
     return Optional.of(blogPosts)
         .map(posts -> toFilteredImageUrlCollection(posts, minLikes, minWidth))

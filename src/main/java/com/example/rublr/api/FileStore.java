@@ -4,9 +4,9 @@ import java.util.Collection;
 
 public interface FileStore {
 
-  Collection<String> listFileNames(String blogName, String folder);
+  Collection<String> listFileNames(String blogName, String contentFolder);
 
-  boolean saveFile(String blogName, String folder, String fileName, byte[] data);
+  boolean saveFile(String blogName, String contentFolder, String fileName, byte[] data);
 
-  boolean init(String blog, String images);
+  boolean initializeStore(String blogName, String contentFolder);
 }

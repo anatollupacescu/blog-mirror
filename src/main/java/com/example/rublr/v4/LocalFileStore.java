@@ -29,7 +29,7 @@ public class LocalFileStore implements FileStore {
   }
 
   @Override
-  public boolean init(String blogName, String folder) {
+  public boolean initializeStore(String blogName, String folder) {
     val folderPath = getFolderPath(blogName, folder);
     try {
       Files.createDirectories(folderPath);
@@ -53,7 +53,7 @@ public class LocalFileStore implements FileStore {
     }
   }
 
-  public static Set<String> fileList(Path directory) {
+  private static Set<String> fileList(Path directory) {
     try (Stream<Path> directoryStream = Files.list(directory)) {
       return directoryStream.map(Path::getFileName).map(Path::toString).collect(toSet());
     } catch (IOException ex) {
