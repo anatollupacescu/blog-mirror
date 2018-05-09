@@ -9,6 +9,9 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
+  <artifactId>spring</artifactId>
+  <packaging>jar</packaging>
+
   <properties>
     <spring.boot.version>2.0.0.RELEASE</spring.boot.version>
     <jgiven.version>0.15.3</jgiven.version>
@@ -27,7 +30,6 @@
     </dependencies>
   </dependencyManagement>
 
-  <artifactId>spring</artifactId>
   <dependencies>
     <dependency>
       <groupId>org.springframework.shell</groupId>
@@ -78,6 +80,16 @@
           <mainClass>com.example.rublr.SpringCommandLineApplication</mainClass>
           <layout>ZIP</layout>
         </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+            <configuration>
+              <classifier>fat</classifier>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
