@@ -88,12 +88,13 @@ public class ImageContentDownloadingService implements ContentDownloadingService
   }
 
   private Collection<String> getAlreadyDownloadedFileNames(String blogName) {
-    return Collections
-        .unmodifiableCollection(imageStore.listFileNames(blogName, defaultImagesFolderName));
+    val fileNames = imageStore.listFileNames(blogName, defaultImagesFolderName);
+    return Collections.unmodifiableCollection(fileNames);
   }
 
   private List<BlogPost> getBlogPosts(String blogName) {
-    return Collections.unmodifiableList(recordStore.readRecords(blogName));
+    val fileNames = recordStore.readRecords(blogName);
+    return Collections.unmodifiableList(fileNames);
   }
 
   private boolean saveImageFromUrl(String blogName, String fileName, String url) {

@@ -1,15 +1,20 @@
 package com.example.rublr.v4;
 
+import static java.util.stream.Collectors.toSet;
+
 import com.example.rublr.api.FileStore;
 import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.logging.log4j.util.Strings;
@@ -17,41 +22,54 @@ import org.apache.logging.log4j.util.Strings;
 @Slf4j
 public class LocalFileStore implements FileStore {
 
-  private final String slash = "/";
   private final String rootFolder;
 
-  public LocalFileStore(String s) {
-    this.rootFolder = s.endsWith(slash) ? s : s + slash;
+  public LocalFileStore(String rootFolder) {
+    this.rootFolder = rootFolder;
   }
 
   @Override
   public boolean init(String blogName, String folder) {
     val folderPath = getFolderPath(blogName, folder);
-    return new File(folderPath).mkdirs();
+    try {
+      Files.createDirectories(folderPath);
+      return true;
+    } catch (IOException e) {
+      log.error("Could not create directories", e);
+    }
+    return false;
   }
 
   @Override
   public Set<String> listFileNames(String blogName, String folder) {
-    val destination = getFolderPath(blogName, folder);
-    File file = new File(destination);
-    Preconditions.checkArgument(file.exists(), "Destination folder not found");
-    File[] files = file.listFiles();
-    if (files == null) {
-      return Collections.emptySet();
+    val directory = getFolderPath(blogName, folder);
+    ensureDirectoryExists(directory);
+    return fileList(directory);
+  }
+
+  private void ensureDirectoryExists(Path directory) {
+    if (Files.notExists(directory)) {
+      throw new IllegalStateException("File store not initialized");
     }
-    return Arrays.stream(files)
-        .map(File::getName)
-        .collect(Collectors.toSet());
   }
 
-  private String getFolderPath(String blogName, String folder) {
+  public static Set<String> fileList(Path directory) {
+    try (Stream<Path> directoryStream = Files.list(directory)) {
+      return directoryStream.map(Path::getFileName).map(Path::toString).collect(toSet());
+    } catch (IOException ex) {
+      log.error("Could not list directory {} because: {}", directory, ex.getMessage());
+    }
+    return Collections.emptySet();
+  }
+
+  private Path getFolderPath(String blogName, String folder) {
     assertAllNotEmpty(blogName, folder);
-    return String.format("%s%s/%s/", rootFolder, blogName, folder);
+    return Paths.get(rootFolder, blogName, folder);
   }
 
-  private String getFilePath(String blogName, String folder, String fileName) {
+  private Path getFilePath(String blogName, String folder, String fileName) {
     assertAllNotEmpty(fileName);
-    return String.format("%s/%s", getFolderPath(blogName, folder), fileName);
+    return Paths.get(getFolderPath(blogName, folder).toString(), fileName);
   }
 
   private void assertAllNotEmpty(String... strings) {
@@ -64,7 +82,7 @@ public class LocalFileStore implements FileStore {
       log.warn("Empty body, will not save");
     } else {
       val destination = getFilePath(blogName, folder, fileName);
-      val file = new File(destination);
+      val file = new File(destination.toUri());
       try (OutputStream out = new FileOutputStream(file)) {
         out.write(data);
         return true;

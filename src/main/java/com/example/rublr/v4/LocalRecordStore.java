@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -83,6 +84,7 @@ public class LocalRecordStore implements RecordStore {
   }
 
   private File getJsonFileAtLocation(String location, String fileName) {
-    return new File(String.format("%s/%s.json", location, fileName));
+    val path = Paths.get(location, fileName + ".json");
+    return path.toFile();
   }
 }
