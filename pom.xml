@@ -7,7 +7,14 @@
   <groupId>com.example</groupId>
   <artifactId>blog-mirror</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <packaging>jar</packaging>
+
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>api</module>
+    <module>spring</module>
+    <module>tumblr</module>
+  </modules>
 
   <name>Blog mirror</name>
   <description>Allows downloading content from tumblr</description>
@@ -16,88 +23,34 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
-    <jgiven.version>0.15.3</jgiven.version>
-    <spring.boot.version>2.0.0.RELEASE</spring.boot.version>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.compiler.source>${java.version}</maven.compiler.source>
   </properties>
 
   <dependencyManagement>
     <dependencies>
-      <!-- Spring Boot BOM -->
       <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring.boot.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.25</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.2.3</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>20.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <optional>true</optional>
+        <version>1.16.20</version>
+        <scope>provided</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework.shell</groupId>
-      <artifactId>spring-shell-starter</artifactId>
-      <version>${spring.boot.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.tumblr</groupId>
-      <artifactId>jumblr</artifactId>
-      <version>0.0.11</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.9.5</version>
-    </dependency>
-    <dependency>
-      <groupId>com.tngtech.jgiven</groupId>
-      <artifactId>jgiven-junit</artifactId>
-      <version>${jgiven.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.tngtech.jgiven</groupId>
-      <artifactId>jgiven-spring</artifactId>
-      <version>${jgiven.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.reactivex</groupId>
-      <artifactId>rxjava</artifactId>
-      <version>1.3.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>20.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <optional>true</optional>
-      <version>1.16.20</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-      <version>${spring.boot.version}</version>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>${spring.boot.version}</version>
-        <configuration>
-          <mainClass>com.example.rublr.SpringCommandLineApplication</mainClass>
-          <layout>ZIP</layout>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
 </project>

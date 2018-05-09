@@ -16,6 +16,9 @@
 *.iml
 *.ipr
 *.log
+api/*.iml
+tumblr/*.iml
+spring*/.iml
 
 ### NetBeans ###
 /nbproject/private/

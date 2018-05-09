@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>blog-mirror</artifactId>
+    <groupId>com.example</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <properties>
+    <spring.boot.version>2.0.0.RELEASE</spring.boot.version>
+    <jgiven.version>0.15.3</jgiven.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Spring Boot BOM -->
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring.boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <artifactId>spring</artifactId>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.shell</groupId>
+      <artifactId>spring-shell-starter</artifactId>
+      <version>${spring.boot.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.example</groupId>
+      <artifactId>tumblr</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.tngtech.jgiven</groupId>
+      <artifactId>jgiven-junit</artifactId>
+      <version>${jgiven.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.tngtech.jgiven</groupId>
+      <artifactId>jgiven-spring</artifactId>
+      <version>${jgiven.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+      <version>${spring.boot.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${spring.boot.version}</version>
+        <configuration>
+          <mainClass>com.example.rublr.SpringCommandLineApplication</mainClass>
+          <layout>ZIP</layout>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
