@@ -138,5 +138,13 @@ public class SpringCommandLineApplication {
       long count = videoDownloadingService.download(blogName, minLikes, minWidth);
       return String.format("Done fetching %d video(s)", count);
     }
+
+    @ShellMethod("Counts pending videos for given filters")
+    public String estimateVideoCount(@ShellOption String blogName,
+        @ShellOption(defaultValue = "0") int minLikes,
+        @ShellOption(defaultValue = "0") int minWidth) {
+      long count = videoDownloadingService.getCount(blogName, minLikes, minWidth);
+      return String.format("Found %d video(s)", count);
+    }
   }
 }

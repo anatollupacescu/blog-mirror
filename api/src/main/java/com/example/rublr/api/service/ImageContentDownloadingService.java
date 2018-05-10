@@ -1,5 +1,7 @@
 package com.example.rublr.api.service;
 
+import static java.util.stream.Collectors.toList;
+
 import com.example.rublr.api.ContentDownloadingService;
 import com.example.rublr.api.DataFetcher;
 import com.example.rublr.api.FileStore;
@@ -10,7 +12,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -34,16 +35,21 @@ public class ImageContentDownloadingService implements ContentDownloadingService
   @Override
   public long download(String blogName, int minLikes, int minWidth) {
     imageStore.initializeStore(blogName, defaultImagesFolderName);
+    val remainingImages = buildPendingImageMap(blogName, minLikes, minWidth);
+    return downloadImages(remainingImages, blogName);
+  }
+
+  private Map<String, String> buildPendingImageMap(String blogName, int minLikes, int minWidth) {
     val blogPosts = getBlogPosts(blogName);
-    return Optional.of(blogPosts)
-        .map(posts -> toFilteredImageUrlCollection(posts, minLikes, minWidth))
-        .map(this::buildPendingImagesMap)
-        .map(fileNameToUrl -> {
-          val alreadyDownloaded = getAlreadyDownloadedFileNames(blogName);
-          return filterAlreadyDownloaded(fileNameToUrl, alreadyDownloaded);
-        })
-        .map(filteredFileNamesMap -> downloadImages(filteredFileNamesMap, blogName))
-        .get();
+    val urls = toFilteredImageUrlCollection(blogPosts, minLikes, minWidth);
+    val urlMap = toUrlMap(urls);
+    val alreadyDownloaded = getAlreadyDownloadedFileNames(blogName);
+    return removeAlreadyDownloaded(urlMap, alreadyDownloaded);
+  }
+
+  @Override
+  public long getCount(String blogName, int minLikes, int minWidth) {
+    return buildPendingImageMap(blogName, minLikes, minWidth).size();
   }
 
   private int downloadImages(Map<String, String> filteredFileNamesMap, String blogName) {
@@ -76,13 +82,13 @@ public class ImageContentDownloadingService implements ContentDownloadingService
     }
   }
 
-  private Map<String, String> filterAlreadyDownloaded(Map<String, String> fileNameToUrl,
+  private Map<String, String> removeAlreadyDownloaded(Map<String, String> fileNameToUrl,
       Collection<String> alreadyDownloaded) {
     alreadyDownloaded.forEach(fileNameToUrl::remove);
     return fileNameToUrl;
   }
 
-  private Map<String, String> buildPendingImagesMap(Collection<String> imagesToDownload) {
+  private Map<String, String> toUrlMap(Collection<String> imagesToDownload) {
     return imagesToDownload.stream()
         .collect(Collectors.toMap(this::filenameOnly, Function.identity(), (old, nev) -> old));
   }
@@ -110,7 +116,7 @@ public class ImageContentDownloadingService implements ContentDownloadingService
         .flatMap(post -> post.getPhotos().stream())
         .flatMap(photo -> photo.getSizes().stream())
         .filter(o -> o.getWidth() >= minWidth);
-    return images.map(Size::getUrl).collect(Collectors.toSet());
+    return images.map(Size::getUrl).collect(toList());
   }
 
   private String filenameOnly(String url) {

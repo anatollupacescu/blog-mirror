@@ -82,9 +82,7 @@ public class LocalFileStore implements FileStore {
 
   @Override
   public boolean saveFile(String blogName, String folder, String fileName, byte[] data) {
-    if (data.length == 0) {
-      log.warn("Empty body, will not save");
-    } else {
+    if (data.length != 0) {
       val destination = getFilePath(blogName, folder, fileName);
       val file = new File(destination.toUri());
       try (OutputStream out = new FileOutputStream(file)) {

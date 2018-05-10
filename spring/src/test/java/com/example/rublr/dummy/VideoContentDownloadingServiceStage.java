@@ -1,4 +1,4 @@
-package com.example.rublr.api.service;
+package com.example.rublr.dummy;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -15,6 +15,7 @@ import com.example.rublr.api.RecordStore;
 import com.example.rublr.api.domain.BlogPost;
 import com.example.rublr.api.domain.Photo;
 import com.example.rublr.api.domain.Video;
+import com.example.rublr.api.service.VideoContentDownloadingService;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.BeforeScenario;
 import com.tngtech.jgiven.annotation.Quoted;
@@ -31,16 +32,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class VideoContentDownloadingServiceStage extends Stage<VideoContentDownloadingServiceStage> {
 
   @Autowired
-  RecordStore recordStore;
+  private RecordStore recordStore;
 
   @Autowired
-  FileStore videoStore;
+  private FileStore videoStore;
 
   private DataFetcher dataFetcher;
   private VideoContentDownloadingService videoDownloadingService;
   private String blogName;
 
-  final String defaultVideoFolderName = "vids";
+  private final String defaultVideoFolderName = "vids";
+
+  private long pendingCount;
 
   @BeforeScenario
   public void setUp() {
@@ -70,7 +73,7 @@ public class VideoContentDownloadingServiceStage extends Stage<VideoContentDownl
 
   public VideoContentDownloadingServiceStage the_remote_resource_has_$_videos(
       int remoteVideosCount) {
-    recordStore.updateRecords(blogName, testData(2));
+    recordStore.updateRecords(blogName, Collections.emptyList(), testData(2));
     Collection<BlogPost> blogPosts = recordStore.readRecords(blogName);
     assertThat(blogPosts, is(notNullValue()));
     assertThat(blogPosts.size(), is(equalTo(remoteVideosCount)));
@@ -80,6 +83,16 @@ public class VideoContentDownloadingServiceStage extends Stage<VideoContentDownl
   public VideoContentDownloadingServiceStage the_blog_is_synced() {
     Mockito.when(dataFetcher.fetch(anyString())).thenReturn(new byte[]{0});
     videoDownloadingService.download(blogName, 0, 0);
+    return self();
+  }
+
+  public VideoContentDownloadingServiceStage the_pending_count_is_inquired(int minLikes, int minWidth) {
+    this.pendingCount = videoDownloadingService.getCount(blogName, minLikes, minWidth);
+    return self();
+  }
+
+  public VideoContentDownloadingServiceStage the_pending_count_is_$(long expectedPendingCount) {
+    assertThat(pendingCount, is(equalTo(expectedPendingCount)));
     return self();
   }
 
@@ -98,6 +111,7 @@ public class VideoContentDownloadingServiceStage extends Stage<VideoContentDownl
 
   private List<BlogPost> testData(int count) {
     val videoBlogPost = new BlogPost();
+    videoBlogPost.setType("video");
     val videos = Lists.<Video>newArrayList();
     for (int i = 1; i <= count; i++) {
       videos.add(newVideo(i));

@@ -1,4 +1,4 @@
-package com.example.rublr.api.service;
+package com.example.rublr.dummy;
 
 import com.tngtech.jgiven.integration.spring.SimpleSpringScenarioTest;
 import org.junit.Test;
@@ -8,8 +8,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {TestConfig.class})
-public class BlogPostSynchronizingServiceIT extends
-    SimpleSpringScenarioTest<BlogPostSynchronizerStage> {
+public class BlogPostSynchronizingServiceIT extends SimpleSpringScenarioTest<BlogPostSynchronizerStage> {
 
   @Test
   public void forNewBlogMirrorWillDownloadAllBlogPosts() {

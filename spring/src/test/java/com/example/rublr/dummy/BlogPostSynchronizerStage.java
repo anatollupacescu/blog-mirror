@@ -1,4 +1,4 @@
-package com.example.rublr.api.service;
+package com.example.rublr.dummy;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -8,13 +8,14 @@ import static org.hamcrest.Matchers.notNullValue;
 import com.example.rublr.api.BlogPostFetcher;
 import com.example.rublr.api.RecordStore;
 import com.example.rublr.api.domain.BlogPost;
-import com.example.rublr.dummy.InMemoryBlogPostFetcher;
+import com.example.rublr.api.service.BlogPostSynchronizingService;
 import com.google.common.collect.ImmutableList;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.BeforeStage;
 import com.tngtech.jgiven.annotation.Quoted;
 import com.tngtech.jgiven.integration.spring.JGivenStage;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,12 +44,14 @@ public class BlogPostSynchronizerStage extends Stage<BlogPostSynchronizerStage> 
   }
 
   public BlogPostSynchronizerStage it_has_$_local_records(int count) {
-    recordStore.updateRecords(blogName, testData(count));
+    recordStore.updateRecords(blogName, Collections.emptyList(), testData(count));
+    assertThat(recordStore.readRecords(blogName).size(), equalTo(count));
     return self();
   }
 
   public BlogPostSynchronizerStage it_has_no_local_records() {
-    return it_has_$_local_records(0);
+    assertThat(recordStore.readRecords(blogName).isEmpty(), is(equalTo(true)));
+    return self();
   }
 
   public BlogPostSynchronizerStage the_remote_resource_has_$_posts(int postCount) {
@@ -63,12 +66,13 @@ public class BlogPostSynchronizerStage extends Stage<BlogPostSynchronizerStage> 
   }
 
   //assert
-  public BlogPostSynchronizerStage a_total_of_$_new_records_downloaded(int numberOfPosts) {
+  public BlogPostSynchronizerStage a_total_of_$_new_records_downloaded(long numberOfPosts) {
     assertThat(deltaCount, is(equalTo(numberOfPosts)));
     return self();
   }
 
   public BlogPostSynchronizerStage a_total_of_$_fetches_occured(int count) {
+
     return self();
   }
 

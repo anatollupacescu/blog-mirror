@@ -39,6 +39,6 @@ public class HttpDataFetcher implements DataFetcher {
         httpConn.disconnect();
       }
     }
-    return new byte[] {};
+    return new byte[]{};
   }
 }

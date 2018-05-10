@@ -51,7 +51,7 @@ public class LocalRecordStore implements RecordStore {
 
   private List<BlogPost> load(File file) {
     try {
-      return reader.readValue(file);
+      return Collections.unmodifiableList(reader.readValue(file));
     } catch (IOException e) {
       log.error("Could not deserialize file {} because {}", file.getName(), e.getMessage());
     }
@@ -61,12 +61,15 @@ public class LocalRecordStore implements RecordStore {
   @Override
   public List<BlogPost> readRecords(String name) {
     val blogResource = getJsonFileAtLocation(location, name);
+    if (!blogResource.exists()) {
+      log.info("Blog {} was not found locally", name);
+      return Collections.emptyList();
+    }
     return load(blogResource);
   }
 
   @Override
-  public long updateRecords(String name, List<BlogPost> delta) {
-    val actualRecords = readRecords(name);
+  public long updateRecords(String name, List<BlogPost> actualRecords, List<BlogPost> delta) {
     val newList = ImmutableList.<BlogPost>builder();
     newList.addAll(actualRecords);
     newList.addAll(delta);

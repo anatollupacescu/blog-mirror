@@ -22,7 +22,7 @@ public class InMemoryRecordStore implements RecordStore {
   }
 
   @Override
-  public long updateRecords(String name, List<BlogPost> delta) {
+  public long updateRecords(String name, List<BlogPost> localRecords, List<BlogPost> delta) {
     Preconditions.checkNotNull(name);
     if (posts.putAll(name, delta)) {
       return delta.size();

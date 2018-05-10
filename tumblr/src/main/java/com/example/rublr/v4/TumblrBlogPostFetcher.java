@@ -29,12 +29,9 @@ public class TumblrBlogPostFetcher implements BlogPostFetcher {
 
   @Override
   public int availablePostCount(String name) {
-    return getBlogInfo(name).getPostCount();
-  }
-
-  public Blog getBlogInfo(String name) {
     Objects.requireNonNull(name);
-    return client.blogInfo(name);
+    val blogInfo = client.blogInfo(name);
+    return blogInfo.getPostCount();
   }
 
   @Override
@@ -93,6 +90,7 @@ public class TumblrBlogPostFetcher implements BlogPostFetcher {
     photo.setSizes(sizes);
     return photo;
   }
+
   private Map<String, Object> requestMap(int offset, int step) {
     return ImmutableMap.of("offset", offset, "limit", step);
   }

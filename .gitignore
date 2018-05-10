@@ -17,8 +17,12 @@
 *.ipr
 *.log
 api/*.iml
+api/target
 tumblr/*.iml
-spring*/.iml
+tumblr/target
+spring/*.iml
+spring/target
+spring/jgiven-reports
 
 ### NetBeans ###
 /nbproject/private/

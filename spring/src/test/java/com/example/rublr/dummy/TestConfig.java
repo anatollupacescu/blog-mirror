@@ -1,4 +1,4 @@
-package com.example.rublr.api.service;
+package com.example.rublr.dummy;
 
 import com.example.rublr.api.BlogPostFetcher;
 import com.example.rublr.api.FileStore;
@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableJGiven
-@ComponentScan(basePackages = "com.example.rublr.com.example.rublr.api.service")
+@ComponentScan(basePackages = "com.example.rublr.dummy")
 public class TestConfig {
 
   @Bean

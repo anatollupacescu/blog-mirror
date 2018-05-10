@@ -24,12 +24,12 @@ public class BlogPostSynchronizingService {
     val localRecords = recordStore.readRecords(name);
     val currentRecordCount = localRecords.size();
     val availableRecordCount = client.availablePostCount(name);
-    log.info("Will download {} records...", availableRecordCount - currentRecordCount);
     long updated = 0;
     if (currentRecordCount < availableRecordCount) {
+      log.info("Downloading {} records...", availableRecordCount - currentRecordCount);
       val remoteRecords = fetchPosts(name, currentRecordCount, availableRecordCount);
       log.info("Saving {} new records...", remoteRecords.size());
-      updated = recordStore.updateRecords(name, remoteRecords);
+      updated = recordStore.updateRecords(name, localRecords, remoteRecords);
     } else {
       log.info("No new records found");
     }
@@ -37,20 +37,26 @@ public class BlogPostSynchronizingService {
   }
 
   private String emptyToNull(String name) {
-    if ("".equals(name)) return null;
+    if ("".equals(name)) {
+      return null;
+    }
     return name;
   }
 
   private List<BlogPost> fetchPosts(String name, int downloaded, int size) {
     int step = stepSize;
     val result = ImmutableList.<BlogPost>builder();
-    for (int i = size - downloaded; i > 0; i -= 20) {
+    int count = 0;
+    int remaining = size - downloaded;
+    for (int i = remaining; i > 0; i -= 20) {
       int offset = i - 20;
       if (offset < 0) {
         step = step + offset;
         offset = 0;
       }
       Collection<BlogPost> fetched = client.fetchPosts(name, offset, step);
+      count += fetched.size();
+      log.info("Records downloaded {}/{}", count, remaining);
       result.addAll(fetched);
     }
     return result.build();

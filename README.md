@@ -1,2 +1,6 @@
 # blog-mirror
-Instructions to follow...
+
+to create a fat jar run:
+
+  ./mvnw clean install
+  ./mvnw -f spring/pom.xml clean package
