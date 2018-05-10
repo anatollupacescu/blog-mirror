@@ -34,9 +34,13 @@ public class ImageContentDownloadingService implements ContentDownloadingService
 
   @Override
   public long download(String blogName, int minLikes, int minWidth) {
-    imageStore.initializeStore(blogName, defaultImagesFolderName);
+    initializeFolders(blogName);
     val remainingImages = buildPendingImageMap(blogName, minLikes, minWidth);
     return downloadImages(remainingImages, blogName);
+  }
+
+  private void initializeFolders(String blogName) {
+    imageStore.initializeStore(blogName, defaultImagesFolderName);
   }
 
   private Map<String, String> buildPendingImageMap(String blogName, int minLikes, int minWidth) {
@@ -49,6 +53,7 @@ public class ImageContentDownloadingService implements ContentDownloadingService
 
   @Override
   public long getCount(String blogName, int minLikes, int minWidth) {
+    initializeFolders(blogName);
     return buildPendingImageMap(blogName, minLikes, minWidth).size();
   }
 

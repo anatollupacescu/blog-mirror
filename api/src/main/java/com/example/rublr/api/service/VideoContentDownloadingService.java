@@ -31,7 +31,7 @@ public class VideoContentDownloadingService implements ContentDownloadingService
 
   @Override
   public long download(String blogName, int minLikes, int minWidth) {
-    initFolders(blogName);
+    initializeFolders(blogName);
     val videoUrlMap = buildPendingForDownloadFiles(blogName, minLikes, minWidth);
     return downloadVideos(blogName, videoUrlMap);
   }
@@ -53,11 +53,12 @@ public class VideoContentDownloadingService implements ContentDownloadingService
 
   @Override
   public long getCount(String blogName, int minLikes, int minWidth) {
+    initializeFolders(blogName);
     val filteredFileNameToUrlMap = buildPendingForDownloadFiles(blogName, minLikes, minWidth);
     return filteredFileNameToUrlMap.size();
   }
 
-  private void initFolders(String blogName) {
+  private void initializeFolders(String blogName) {
     localFileStore.initializeStore(blogName, defaultVideosFolderName);
   }
 

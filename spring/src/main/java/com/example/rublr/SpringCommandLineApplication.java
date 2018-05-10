@@ -140,11 +140,19 @@ public class SpringCommandLineApplication {
     }
 
     @ShellMethod("Counts pending videos for given filters")
-    public String estimateVideoCount(@ShellOption String blogName,
+    public String getVideoCount(@ShellOption String blogName,
         @ShellOption(defaultValue = "0") int minLikes,
         @ShellOption(defaultValue = "0") int minWidth) {
       long count = videoDownloadingService.getCount(blogName, minLikes, minWidth);
       return String.format("Found %d video(s)", count);
+    }
+
+    @ShellMethod("Counts pending images for given filters")
+    public String getImageCount(@ShellOption String blogName,
+        @ShellOption(defaultValue = "0") int minLikes,
+        @ShellOption(defaultValue = "0") int minWidth) {
+      long count = imageDownloadingService.getCount(blogName, minLikes, minWidth);
+      return String.format("Found %d images(s)", count);
     }
   }
 }
