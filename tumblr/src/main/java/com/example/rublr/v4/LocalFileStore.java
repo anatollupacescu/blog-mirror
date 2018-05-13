@@ -4,10 +4,7 @@ import static java.util.stream.Collectors.toSet;
 
 import com.example.rublr.api.FileStore;
 import com.google.common.base.Preconditions;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -66,6 +63,20 @@ public class LocalFileStore implements FileStore {
     return Paths.get(rootFolder, blogName, folder);
   }
 
+  @Override
+  public boolean saveFile(String blogName, String folder, String fileName, byte[] data) {
+    if (data.length != 0) {
+      val destination = getFilePath(blogName, folder, fileName);
+      try {
+        val resultingPath = Files.write(destination, data);
+        return Files.exists(resultingPath);
+      } catch (IOException e) {
+        log.error("Could not save file", e);
+      }
+    }
+    return false;
+  }
+
   private Path getFilePath(String blogName, String folder, String fileName) {
     assertAllNotEmpty(fileName);
     return Paths.get(getFolderPath(blogName, folder).toString(), fileName);
@@ -78,21 +89,5 @@ public class LocalFileStore implements FileStore {
   private void requireNonEmpty(String s) {
     val isNullOrEmpty = s == null || "".equals(s);
     Preconditions.checkArgument(!isNullOrEmpty);
-  }
-
-  @Override
-  public boolean saveFile(String blogName, String folder, String fileName, byte[] data) {
-    if (data.length != 0) {
-      val destination = getFilePath(blogName, folder, fileName);
-      val file = new File(destination.toUri());
-      try (OutputStream out = new FileOutputStream(file)) {
-        out.write(data);
-        return true;
-      } catch (IOException e) {
-        log.error("Could not save file {} to location {} because: ", fileName, folder,
-            e.getMessage());
-      }
-    }
-    return false;
   }
 }

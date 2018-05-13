@@ -9,12 +9,13 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.common.collect.ImmutableList;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.StreamSupport;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -34,26 +35,28 @@ public class LocalRecordStore implements RecordStore {
 
   @Override
   public List<Blog> listBlogs() {
-    val localFolder = new File(location);
-    val files = localFolder.listFiles();
-    if (files == null) {
-      return Collections.emptyList();
-    }
-    return Arrays.stream(files)
-        .filter(file -> file.getName().endsWith(".json"))
-        .map(file -> new Blog(file.getName(), getRecordCount(file)))
-        .collect(toList());
-  }
-
-  private Integer getRecordCount(File file) {
-    return load(file).size();
-  }
-
-  private List<BlogPost> load(File file) {
-    try {
-      return Collections.unmodifiableList(reader.readValue(file));
+    val dir = Paths.get(location);
+    try (val stream = Files.newDirectoryStream(dir, "*.json")) {
+        return StreamSupport.stream(stream.spliterator(), false)
+            .map(path -> new Blog(path.getFileName().toString(), getRecordCount(path)))
+            .collect(toList());
     } catch (IOException e) {
-      log.error("Could not deserialize file {} because {}", file.getName(), e.getMessage());
+      log.error("Could not open file", e);
+    }
+      return Collections.emptyList();
+  }
+
+  private Integer getRecordCount(Path path) {
+    return load(path).size();
+  }
+
+  private List<BlogPost> load(Path path) {
+    try {
+      val body = Files.readAllBytes(path);
+      val list = reader.<List<BlogPost>>readValue(body);
+      return Collections.unmodifiableList(list);
+    } catch (IOException e) {
+      log.error("Could not deserialize file", e);
     }
     return Collections.emptyList();
   }
@@ -61,7 +64,7 @@ public class LocalRecordStore implements RecordStore {
   @Override
   public List<BlogPost> readRecords(String name) {
     val blogResource = getJsonFileAtLocation(location, name);
-    if (!blogResource.exists()) {
+    if (!Files.exists(blogResource)) {
       log.info("Blog {} was not found locally", name);
       return Collections.emptyList();
     }
@@ -80,14 +83,13 @@ public class LocalRecordStore implements RecordStore {
   private void save(String name, List<BlogPost> items) {
     try {
       val blogResource = getJsonFileAtLocation(location, name);
-      mapper.writeValue(blogResource, items);
+      mapper.writeValue(blogResource.toFile(), items);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  private File getJsonFileAtLocation(String location, String fileName) {
-    val path = Paths.get(location, fileName + ".json");
-    return path.toFile();
+  private Path getJsonFileAtLocation(String location, String fileName) {
+    return Paths.get(location, fileName + ".json");
   }
 }
