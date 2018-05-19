@@ -55,6 +55,9 @@ public class BlogPostSynchronizingService {
         offset = 0;
       }
       Collection<BlogPost> fetched = client.fetchPosts(name, offset, step);
+      if (fetched.isEmpty()) {
+        break;
+      }
       count += fetched.size();
       log.info("Records downloaded {}/{}", count, remaining);
       result.addAll(fetched);

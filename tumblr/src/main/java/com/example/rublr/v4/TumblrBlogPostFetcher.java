@@ -9,20 +9,22 @@ import com.example.rublr.api.domain.Size;
 import com.example.rublr.api.domain.Video;
 import com.google.common.collect.ImmutableMap;
 import com.tumblr.jumblr.JumblrClient;
-import com.tumblr.jumblr.types.Blog;
 import com.tumblr.jumblr.types.Note;
 import com.tumblr.jumblr.types.PhotoPost;
 import com.tumblr.jumblr.types.Post;
 import com.tumblr.jumblr.types.VideoPost;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 @AllArgsConstructor
+@Slf4j
 public class TumblrBlogPostFetcher implements BlogPostFetcher {
 
   private final JumblrClient client;
@@ -38,9 +40,18 @@ public class TumblrBlogPostFetcher implements BlogPostFetcher {
   public List<BlogPost> fetchPosts(String name, int offset, int step) {
     Objects.requireNonNull(name);
     val options = requestMap(offset, step);
+    return fetchFromRemote(name, options);
+  }
+
+  private List<BlogPost> fetchFromRemote(String name, Map<String, Object> options) {
+    try {
     return client.blogPosts(name, options).stream()
         .map(this::toBlogPost)
         .collect(toList());
+    } catch (Exception e) {
+      log.error("Could not fetch posts from remote", e);
+    }
+    return Collections.emptyList();
   }
 
   private BlogPost toBlogPost(Post post) {
