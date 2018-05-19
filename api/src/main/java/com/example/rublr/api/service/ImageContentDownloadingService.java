@@ -12,8 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -61,34 +60,25 @@ public class ImageContentDownloadingService implements ContentDownloadingService
     if (filteredFileNamesMap.isEmpty()) {
       return 0;
     }
-    val size = filteredFileNamesMap.size();
-    val latch = new CountDownLatch(size);
+    val size = new AtomicInteger(filteredFileNamesMap.size());
+    val downloaded = new AtomicInteger(0);
     Observable.from(filteredFileNamesMap.entrySet())
         .flatMap(s -> Observable.just(s)
             .subscribeOn(computation)
             .map(e -> saveImageFromUrl(blogName, e.getKey(), e.getValue())))
+        .toBlocking()
         .subscribe(isSuccess -> {
           if (isSuccess) {
-            latch.countDown();
-            log.info("Images downloaded: {}/{}", size - latch.getCount(), size);
+            val totalDownloaded = downloaded.incrementAndGet();
+            log.info("Images downloaded: {}/{}", totalDownloaded, size.get());
+          } else {
+            size.decrementAndGet();
           }
         });
-
-    waitAllDownloads(latch);
-    return size;
+    return downloaded.get();
   }
 
-  private void waitAllDownloads(CountDownLatch latch) {
-    try {
-      val remaining = latch.getCount();
-      latch.await(remaining, TimeUnit.SECONDS);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-    }
-  }
-
-  private Map<String, String> removeAlreadyDownloaded(Map<String, String> fileNameToUrl,
-      Collection<String> alreadyDownloaded) {
+  private Map<String, String> removeAlreadyDownloaded(Map<String, String> fileNameToUrl, Collection<String> alreadyDownloaded) {
     alreadyDownloaded.forEach(fileNameToUrl::remove);
     return fileNameToUrl;
   }
